@@ -11,6 +11,10 @@ with open('data/sample_events.json', 'r') as file:
 
 app = Flask(__name__)
 
+@app.route('/')
+def index():
+    return 'Welcome to the linking delpher API!'
+
 # =============================
 # EVENTS (SRC)
 # =============================
