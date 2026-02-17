@@ -42,13 +42,13 @@ def resp_buff(url):
 
 def get_didl(prefix, identifier, ppn):
     url = DIDL % (prefix + identifier)
+    # e.g., url= https://services.kb.nl/mdo/oai?verb=GetRecord&identifier=DDD:ddd:010905171:mpeg21&metadataPrefix=didl
 
     if not os.path.isdir(ppn):
         os.mkdir(ppn)
 
     fname = ppn + os.sep + identifier + '.xml'
     fname = fname.replace(':', '_')
-
 
     if not os.path.isfile(fname):
         resp = requests.get(url)
@@ -69,13 +69,14 @@ def parse_resp_ppns(instr, ppn):
 
     data = lxml.etree.fromstring(instr)
     for i in data.iter():
+        # metadata key for each issue
         if i.tag == '{http://www.kb.nl/ddd}metadataKey':
             if new_ppn:
                 resp = requests.get(i.text)
-                nurl = resp.url 
+                nurl = resp.url # e.g., https://services.kb.nl/mdo/oai?verb=GetRecord&identifier=DDD:ddd:010905171:mpeg21&metadataPrefix=didl
                 prefix = nurl.split('=')[2].split('&')[0].replace(i.text.split('=')[-1], '')
             # print(prefix, i.text)
-            identifier = i.text.split('=')[-1]
+            identifier = i.text.split('=')[-1] # e.g., ddd:010905171:mpeg21
             get_didl(prefix, identifier, ppn)
 
 
