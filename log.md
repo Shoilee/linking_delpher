@@ -1,0 +1,10 @@
+- [x] get flask script up & running
+- [x] make list of sample events
+- [x] create event metadata on the fly
+- [ ] Download newspaper article (with Nias 2nd exp)
+  - [ ] Maybe 1000
+  - [ ] Xml convert to rdf
+  - [ ] Analyze through triple store
+  - [ ] Answer the following questions
+    - [ ] What newspaper is interesting? 
+    - [ ] What article is interesting? With what title
