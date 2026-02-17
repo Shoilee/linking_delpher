@@ -14,7 +14,7 @@ app = Flask(__name__)
 # =============================
 # EVENTS (SRC)
 # =============================
-event_set = ["Expeditie naar Bali", "Lombok oorlog", "Aceh oorlog", "2e expeditie naar nias", "Tapanahoni Expeditie"]
+# event_set = ["Expeditie naar Bali", "Lombok oorlog", "Aceh oorlog", "2e expeditie naar nias", "Tapanahoni Expeditie"]
 
 @app.route("/src/<event_nr>")
 def show_src(event_nr):
