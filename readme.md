@@ -67,8 +67,8 @@ DST is just a huge Python3 set (A single list) with all identifiers that are pot
 DST -> Papers / 1 / [ MMUTRA04:253396087:mpeg21:a00029 , kdsaksad, dsasad] [0,1]
 
 
-                    full_text: "<text> <title>Er is nog niet veel leven in de scheepvaart</title> <p> Doch het begint langzaam te komen Waal, Oude Maas en Dordtsche Kil worden opengebroken Waterweg Rotterdam en Amsterdam is open </p> <p> 
-                  <dc:date>1938/12/25 00:00:00</dc:date>
+                full_text: "<text> <title>Er is nog niet veel leven in de scheepvaart</title> <p> Doch het begint langzaam te komen Waal, Oude Maas en Dordtsche Kil worden opengebroken Waterweg Rotterdam en Amsterdam is open </p> <p> 
+                <dc:date>1938/12/25 00:00:00</dc:date>
                     <dc:identifier>
                     http://resolver.kb.nl/resolve?urn=ddd:110579079:mpeg21:a0211:ocr
                 </dc:identifier>
@@ -181,13 +181,15 @@ some code for this could look like this:
 
 */
 
+sample code: 
+
 https://www.wikidata.org/wiki/Wikidata:Database_download/nl
 
 https://jsru.kb.nl/sru/sru?version=1.2&operation=searchRetrieve&x-collection=DDD_artikel&recordSchema=indexing&startRecord=1&maximumRecords=50&query=(date within "1938 1939") AND Wilhelmina AND Elfstedentocht
 
 */
                     
-                    
+```pyhton                
 import os, sys, time
 import requests
 import lxml.etree
@@ -280,3 +282,4 @@ with open('506_PPNA.txt', 'r') as fh:
             url = URL1 % (ppn, i)
             resp = resp_buff(url) # requests.get(url)
             parse_resp_ppns(resp, ppn)
+```
