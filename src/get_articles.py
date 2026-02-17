@@ -3,6 +3,11 @@ import requests
 import json
 
 import xml.etree.ElementTree as ET
+from datetime import datetime, timezone
+
+
+with open('data/sample_events.json', 'r') as file:
+    ALL_EVENTS = json.load(file)
 
 app = Flask(__name__)
 
