@@ -18,12 +18,46 @@ app = Flask(__name__)
 
 @app.route("/src/<event_nr>")
 def show_src(event_nr):
-    return f"this is event {event_set[int(event_nr)]}"
+    response = {"id" : "",
+                "title" : "",
+                "description" : "",
+                "timeSpan_start" : "",
+                "timeSpan_end" : ""}
+    
+    for key in response.keys():
+        response[key] = ALL_EVENTS[int(event_nr)].get(key, "")
+    response = Response(json.dumps(response),  mimetype='application/json')
+    
+    return response
+
+
+def make_utc_date(year, month, day):
+    dt = datetime(int(year), int(month), int(day), tzinfo=timezone.utc)
+    return dt.strftime("%Y-%m-%dT%H:%M:%SZ")
+
+def literal_to_d_m_y(date_literal):
+    # Example: "1940-01-21" -> (1940, 1, 21)
+    year, month, day = date_literal.split("-")
+    return int(year), int(month), int(day)
+
+def create_meta_data(event):
+    year, month, day = literal_to_d_m_y(event.get("timeSpan_start", "") if event.get("timeSpan_start", "") else (0,0,0))
+    # NOTE: we are only using the start date for the meta data, but we could also use the end date if needed
+    meta_data = {
+        "fulltext": event.get("description", ""),
+        "title": event.get("title", ""),
+        "date_y": year,
+        "date_m": month,
+        "date_d": day,
+        "UTC_DATE": make_utc_date(year, month, day),
+        "entities": set()
+    }
+    return meta_data
 
 @app.route("/src_meta/<event_nr>")
 def show_src_meta(event_nr):
-    return f"this is event {event_set[int(event_nr)]}"
-
+    return f"{create_meta_data(ALL_EVENTS[int(event_nr)])}"
+    
 @app.route("/src_meta/<event_nr>/<prop>")
 def show_src_meta_prop(event_nr, prop):
     know_props = "utc_date", "fulltext", "entities"
