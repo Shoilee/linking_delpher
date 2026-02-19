@@ -181,11 +181,12 @@ some code for this could look like this:
 
 */
 
-sample code: 
 
 https://www.wikidata.org/wiki/Wikidata:Database_download/nl
 
 https://jsru.kb.nl/sru/sru?version=1.2&operation=searchRetrieve&x-collection=DDD_artikel&recordSchema=indexing&startRecord=1&maximumRecords=50&query=(date within "1938 1939") AND Wilhelmina AND Elfstedentocht
+
+https://jsru.kb.nl/sru/sru?query=ppna=45136599&version=1.2&operation=searchRetrieve&x-collection=DDD_artikel&recordSchema=indexing&startRecord=1&maximumRecords=50
 
 */
                     
