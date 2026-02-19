@@ -77,9 +77,9 @@ SRC_meta is the enriched and parsed SRC so we have distinct properties, we store
          max flexibiliry per record and iteration,
          so our db-schema does not hold us back from adding new fields on the fly.
 
-DST is the list of newspapers that are within your target SRU-query (all of them).
+DST is the list of newspapers articles that are within your target SRU-query (all of them).
 
-DST_meta is the enriched and parsed DST (newspaper) same as before with parsed an distinct properties,
+DST_meta is the enriched and parsed DST (newspaper articles) same as before with parsed an distinct properties,
          and like before stored in NOSQL backend. 
          Make this lazy loading, when you first requests dst_meta/1 it has to fetch the initial data from dst,
          do the processings / ner / date_formatting ect., store results and display,
@@ -244,113 +244,3 @@ and they do contain alternative labels for exising entities..
 https://nl.wikipedia.org/wiki/Best_(doorverwijspagina)
 
 
-some code for this could look like this:
-
-
-
-
-*/
-
-
-https://www.wikidata.org/wiki/Wikidata:Database_download/nl
-
-https://jsru.kb.nl/sru/sru?version=1.2&operation=searchRetrieve&x-collection=DDD_artikel&recordSchema=indexing&startRecord=1&maximumRecords=50&query=(date within "1938 1939") AND Wilhelmina AND Elfstedentocht
-
-https://jsru.kb.nl/sru/sru?query=ppna=45136599&version=1.2&operation=searchRetrieve&x-collection=DDD_artikel&recordSchema=indexing&startRecord=1&maximumRecords=50
-
-*/
-                    
-```pyhton                
-import os, sys, time
-import requests
-import lxml.etree
-
-
-
-URL = f'https://jsru.kb.nl/sru/sru?query=ppna=%s&version=1.2&operation=searchRetrieve&startRecord=1&maximumRecords=1&recordSchema=ddd&x-collection=DDD_krantnr&x-fields=ppna'
-
-
-URL1 = f'https://jsru.kb.nl/sru/sru?query=ppna=%s&version=1.2&operation=searchRetrieve&startRecord=%s&maximumRecords=10&recordSchema=ddd&x-collection=DDD_krantnr&x-fields=ppna'
-
-DIDL = 'https://services.kb.nl/mdo/oai?verb=GetRecord&identifier=%s&metadataPrefix=didl'
-
-# /mdo/oai?
-# https://services.kb.nl/mdo/oai?verb=GetRecord&identifier=KRANTEN:KBNRC01:KBNRC01:000028900:mpeg21&metadataPrefix=didl
-
-prev_ppn = ''
-prefix = ''
-
-respbuff = []
-
-def resp_buff(url):
-    global respbuff
-
-    for item in respbuff:
-        if url in item:
-            return item.get(url)
-    respbuff.append({url: ""})
-
-    if len(respbuff) > 10:
-        respbuff.reverse()
-        respbuff.pop()
-        respbuff.reverse()
-    resp = requests.get(url)
-    respbuff[-1] = {url: resp.content}
-    return respbuff[-1].get(url)
-
-
-def get_didl(prefix, identifier, ppn):
-    url = DIDL % (prefix + identifier)
-
-    if not os.path.isdir(ppn):
-        os.mkdir(ppn)
-
-    fname = ppn + os.sep + identifier + '.xml'
-    fname = fname.replace(':', '_')
-
-
-    if not os.path.isfile(fname):
-        resp = requests.get(url)
-        print(resp.content.decode('utf-8'))
-        with open(fname, 'w') as fh:
-            fh.write(resp.content.decode('utf-8'))
-
-
-def parse_resp_ppns(instr, ppn):
-    global prev_ppn
-    global prefix
-    new_ppn = False
-
-    if not ppn == prev_ppn:
-        print('!!!ppn')
-        prev_ppn = ppn
-        new_ppn = True
-
-    data = lxml.etree.fromstring(instr)
-    for i in data.iter():
-        if i.tag == '{http://www.kb.nl/ddd}metadataKey':
-            if new_ppn:
-                resp = requests.get(i.text)
-                nurl = resp.url 
-                prefix = nurl.split('=')[2].split('&')[0].replace(i.text.split('=')[-1], '')
-            #print(prefix, i.text)
-            identifier = i.text.split('=')[-1]
-            get_didl(prefix, identifier, ppn)
-
-
-with open('506_PPNA.txt', 'r') as fh:
-    data = fh.read()
-    for line in data.split('\n'):
-        data = resp_buff(URL % line.strip())
-        ppn = line.strip()
-        data = lxml.etree.fromstring(data)
-        for i in data.iter():
-            if str(i.tag) == '{http://www.loc.gov/zing/srw/}numberOfRecords':
-                total_nr_results = int(i.text)
-                break
-    
-        for i in range(1, total_nr_results + 1, 10):
-            url = URL1 % (ppn, i)
-            resp = resp_buff(url) # requests.get(url)
-            parse_resp_ppns(resp, ppn)
-```
