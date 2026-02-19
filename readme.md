@@ -1,3 +1,73 @@
+
+
+```mermaid
+
+flowchart TD
+
+%% Core data layers
+SRC[SRC\nRaw Events]
+SRC_META[SRC_meta\nParsed + Enriched Events]
+
+DST[DST\nNewspaper IDs ]
+DST_META[DST_meta\nParsed + Enriched Articles]
+
+ENT[ENT\nWikidata Dump]
+ENT_META[ENT_meta\nParsed Entities]
+
+%% Relationships
+SRC --> SRC_META
+DST --> DST_META
+ENT --> ENT_META
+
+SRC_META -->|links to| ENT
+DST_META -->|links to| ENT
+
+%% API Layer
+API_SRC[/framework/src/1\nRaw Event/]
+API_SRC_META[/framework/src_meta/1\nEnriched Event/]
+
+API_DST[/framework/dst/1\nRaw Newspaper/]
+API_DST_META[/framework/dst_meta/1\nEnriched Article/]
+
+SRC --> API_SRC
+SRC_META --> API_SRC_META
+
+DST --> API_DST
+DST_META --> API_DST_META
+
+%% NER Service
+NER[NER Service]
+DST_META -->|fulltext| NER
+NER -->|entities| DST_META
+
+%% Indexing
+INDEX_SRC[(Index\nSRC_meta)]
+INDEX_DST[(Index\nDST_meta)]
+INDEX_ENT[(Index\nENT)]
+
+SRC_META --> INDEX_SRC
+DST_META --> INDEX_DST
+ENT --> INDEX_ENT
+
+%% Disambiguation
+DISAMBIG[Disambiguation Engine]
+
+INDEX_SRC --> DISAMBIG
+INDEX_DST --> DISAMBIG
+INDEX_ENT --> DISAMBIG
+
+DISAMBIG -->|matches / candidates| SRC_META
+DISAMBIG -->|matches / candidates| DST_META
+
+%% Storage
+NOSQL[(NoSQL Cache\nCouchDB)]
+SRC_META --> NOSQL
+DST_META --> NOSQL
+
+%% Lazy loading note
+DST_META -.->|lazy load on first request| DST
+
+```
 It's pointers all the way down..
 
 SRC is what is, but must be addressable from your framework,
