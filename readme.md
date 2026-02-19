@@ -5,67 +5,38 @@
 flowchart TD
 
 %% Core data layers
-SRC[SRC\nRaw Events]
-SRC_META[SRC_meta\nParsed + Enriched Events]
+SRC[/"SRC</br>(Events List)"/]
+SRC_META[/"SRC_meta</br>(Parsed + Enriched Events)"/]
 
-DST[DST\nNewspaper IDs ]
-DST_META[DST_meta\nParsed + Enriched Articles]
+DST[/"DST</br>(List of Article Didl)"/]
+DST_META[/"DST_meta</br>(Parsed + Enriched Articles)"/]
 
-ENT[ENT\nWikidata Dump]
-ENT_META[ENT_meta\nParsed Entities]
+ENT("ENT</br>(Wikidata Dump)")
+ENT_META[/"ENT_meta</br>(Parsed Entities)"/]
+
+
+%% Process: Parsing
+PRS_SRC["Parse Event Metadata"]
+PRS_DST["Parse Article Metadata"]
+
+%% Process: Data dump
+GET_DST["Get article"]
+SRC_META-->GET_DST-->DST
+GET_DST-->PRS_DST-->DST_META
 
 %% Relationships
-SRC --> SRC_META
-DST --> DST_META
+SRC --> PRS_SRC --> SRC_META
 ENT --> ENT_META
 
-SRC_META -->|links to| ENT
-DST_META -->|links to| ENT
-
-%% API Layer
-API_SRC[/framework/src/1\nRaw Event/]
-API_SRC_META[/framework/src_meta/1\nEnriched Event/]
-
-API_DST[/framework/dst/1\nRaw Newspaper/]
-API_DST_META[/framework/dst_meta/1\nEnriched Article/]
-
-SRC --> API_SRC
-SRC_META --> API_SRC_META
-
-DST --> API_DST
-DST_META --> API_DST_META
-
-%% NER Service
-NER[NER Service]
-DST_META -->|fulltext| NER
-NER -->|entities| DST_META
-
 %% Indexing
-INDEX_SRC[(Index\nSRC_meta)]
-INDEX_DST[(Index\nDST_meta)]
-INDEX_ENT[(Index\nENT)]
+INDEX_SRC[(Index</br>SRC_meta)]
+INDEX_DST[(Index</br>DST_meta)]
+INDEX_ENT[(Index</br>ENT)]
 
-SRC_META --> INDEX_SRC
-DST_META --> INDEX_DST
-ENT --> INDEX_ENT
+%% load
+SRC_META -->|load| INDEX_SRC
+DST_META -->|load| INDEX_DST
 
-%% Disambiguation
-DISAMBIG[Disambiguation Engine]
-
-INDEX_SRC --> DISAMBIG
-INDEX_DST --> DISAMBIG
-INDEX_ENT --> DISAMBIG
-
-DISAMBIG -->|matches / candidates| SRC_META
-DISAMBIG -->|matches / candidates| DST_META
-
-%% Storage
-NOSQL[(NoSQL Cache\nCouchDB)]
-SRC_META --> NOSQL
-DST_META --> NOSQL
-
-%% Lazy loading note
-DST_META -.->|lazy load on first request| DST
 
 ```
 It's pointers all the way down..
