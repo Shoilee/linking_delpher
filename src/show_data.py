@@ -64,10 +64,10 @@ def show_src_meta(event_nr):
     
 @app.route("/src_meta/<event_nr>/<prop>")
 def show_src_meta_prop(event_nr, prop):
-    know_props = "utc_date", "fulltext", "entities"
+    know_props = "utc_date", "fulltext", "entities", "title", "date_y", "date_m", "date_d", 
     if not prop in know_props:
         return ""
-    return f"This is property {prop} of event {event}"
+    return f"This is property {prop} is: {create_meta_data(ALL_EVENTS[int(event_nr)])[prop]}"
 
 # =============================
 # PAPERS (DST)
