@@ -20,7 +20,8 @@ URL1 = f'https://jsru.kb.nl/sru/sru?query=ppna=%s&version=1.2&operation=searchRe
 
 DIDL = 'https://services.kb.nl/mdo/oai?verb=GetRecord&identifier=%s&metadataPrefix=didl'
 
-EVENT_BASED_URL = f"https://jsru.kb.nl/sru/sru?version=1.2&operation=searchRetrieve&x-collection=DDD_artikel&recordSchema=indexing&startRecord=1&maximumRecords=50&query=\"%s\" AND (date within \"%s %s\")"
+base_EVENT_BASED_URL = f"https://jsru.kb.nl/sru/sru?version=1.2&operation=searchRetrieve&x-collection=DDD_artikel&recordSchema=indexing&startRecord=1&maximumRecords=1&query=\"%s\" AND (date within \"%s %s\")"
+iter_EVENT_BASED_URL = f"https://jsru.kb.nl/sru/sru?version=1.2&operation=searchRetrieve&x-collection=DDD_artikel&recordSchema=indexing&startRecord=%s&maximumRecords=10&query=\"%s\" AND (date within \"%s %s\")"
 
 
 # /mdo/oai?
@@ -51,29 +52,43 @@ def resp_buff(url):
     respbuff[-1] = {url: resp.content}
     return respbuff[-1].get(url)
 
-def get_didl(dentifier):
-    # TODO: store the retrieved didl in a local folder to avoid repeating identical requests
-    return
-    # url = DIDL % (prefix + identifier)
-    # # e.g., url= https://services.kb.nl/mdo/oai?verb=GetRecord&identifier=DDD:ddd:010905171:mpeg21&metadataPrefix=didl
+# def get_didl(prefix, identifier):
+#     if not prefix == 'DDD:':
+#         prefix = 'KRANTEN:'+prefix
+    
+#     url = DIDL % (prefix + identifier)
+#     print(f"Fetching DIDL for identifier: {identifier} with url: {url}")
+#     # TODO: add prefix to identifier, e.g., ddd:010905171:mpeg21; Note that, anything accept for ddl has prefix KRANTEN: append prefix.
+#     # TODO: go back to page metadata
+#     # e.g., https://services.kb.nl/mdo/oai?verb=GetRecord&identifier=KRANTEN:MMKB19:MMKB19:003518056:mpeg21&metadataPrefix=didl
+#     # TODO: store the page metadata in a separate file, not the article metadata
+#     # url = DIDL % (prefix + identifier)
+#     # # e.g., url= https://services.kb.nl/mdo/oai?verb=GetRecord&identifier=DDD:ddd:010905171:mpeg21&metadataPrefix=didl
 
-    # fname = 'data' + os.sep + identifier + '.xml'
-    # fname = fname.replace(':', '_')
+#     # fname = 'data' + os.sep + identifier + '.xml'
+#     # fname = fname.replace(':', '_')
 
-    # if not os.path.isfile(fname):
-    #     resp = requests.get(url)
-    #     # print(resp.content.decode('utf-8'))
-    #     with open(fname, 'w') as fh:
-    #         fh.write(resp.content.decode('utf-8'))
+#     # if not os.path.isfile(fname):
+#     #     resp = requests.get(url)
+#     #     # print(resp.content.decode('utf-8'))
+#     #     with open(fname, 'w') as fh:
+#     #         fh.write(resp.content.decode('utf-8'))
+#     return
 
-def get_didl(prefix, identifier, ppn):
-    url = DIDL % (prefix + identifier)
+def get_didl(prefix, identifier, ppn=None):
+    if not prefix == 'DDD':
+        prefix = 'KRANTEN:'+prefix
+    url = DIDL % (prefix +':'+identifier)
+    # print(f"Fetching DIDL for identifier: {identifier} with url: {url}")
+    
+    
     # e.g., url= https://services.kb.nl/mdo/oai?verb=GetRecord&identifier=DDD:ddd:010905171:mpeg21&metadataPrefix=didl
+    #            https://services.kb.nl/mdo/oai?verb=GetRecord&identifier=MMKB19:MMKB19:000691071:mpeg21&metadataPrefix=didl
 
-    if not os.path.isdir(ppn):
+    if ppn and not os.path.isdir(ppn):
         os.mkdir(ppn)
 
-    fname = ppn + os.sep + identifier + '.xml'
+    fname = ppn + os.sep + identifier + '.xml' if ppn is not None else 'data/DST' + os.sep + identifier + '.xml'
     fname = fname.replace(':', '_')
 
     if not os.path.isfile(fname):
@@ -129,18 +144,14 @@ event_set = [{"title": "expeditie naar bali", "fulltext": "Description of event 
 
 def parse_resp_events(instr):
     data = lxml.etree.fromstring(instr)
-    for i in data.iter():
-        if i.tag == '{http://www.loc.gov/zing/srw/}numberOfRecords':
-            total_nr_results = int(i.text)
-            break
-    # print(f"Total number of results: {total_nr_results}")
-
-    # TODO: handle pagination if total_nr_results > 10
+  
     for i in data.iter():
         if i.tag == '{http://purl.org/dc/elements/1.1/}identifier':
-            identifier = i.text.split('=')[-1] # e.g., ddd:010905171:mpeg21
+            identifier = i.text.split('=')[-1].split(':')[:-1] # e.g., ddd:010905171:mpeg21:a0002
+            prefix = identifier[0].upper()  
+            identifier = ':'.join(identifier[:-1]) # e.g., ddd:010905171:mpeg21
             # print(f"Identifier: {identifier}")
-            get_didl(identifier)
+            get_didl(prefix, identifier)
 
 def get_article_by_event(event_set):
     for event in event_set:
@@ -148,13 +159,24 @@ def get_article_by_event(event_set):
         fulltext = event.get("fulltext", "")
         date_y = event.get("date_y", "")
         # print(f"Title: {title}, Fulltext: {fulltext}, Date: {date_y}")
-        url = EVENT_BASED_URL % (title, date_y-10, date_y+10)
-        # print(url)
-        
-        resp = requests.get(url)
-        parse_resp_events(resp.content)
-        return
+
+        base_url = base_EVENT_BASED_URL % (title, date_y-10, date_y+10)
+
+        resp = requests.get(base_url)
+        data = lxml.etree.fromstring(resp.content)
+        total_nr_results = 0
+        for i in data.iter():
+            if i.tag == '{http://www.loc.gov/zing/srw/}numberOfRecords':
+                total_nr_results = int(i.text)
+                break
+        print(f"Total results: {total_nr_results} for event: {title}")
+
+        for start in range(1, total_nr_results+1, 10):
+            paged_url = iter_EVENT_BASED_URL % (start, title, date_y-10, date_y+10)
+            # print(paged_url)
+            paged_resp = requests.get(paged_url)
+            parse_resp_events(paged_resp.content)
 
 if __name__ == "__main__":
-    # get_article_by_event(event_set)
-    get_articles_by_ppn()
+    get_article_by_event(event_set)
+    # get_articles_by_ppn()
