@@ -34,13 +34,13 @@ class CouchDBClient:
         return success_count
 
 
-def main():
+def main(input_file: str):
     # Configuration
     CONFIG = {
         'server_url': 'http://localhost:5984',
         'db_name': 'rinr-2026',
         'auth': ('admin', '123456'),
-        'input_file': 'data/sample_events.json'
+        'input_file': input_file
     }
     
     # Load data
@@ -67,4 +67,4 @@ def main():
             print(f'Success - ID: {result["id"]}, Rev: {result["rev"]}')
 
 if __name__ == '__main__':
-    main()
+    main('data/sample_events.json')
