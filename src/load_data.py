@@ -1,5 +1,6 @@
 import requests
 import argparse
+import os
 import json
 from typing import Optional, Dict, Any, List
 from utils import load_json_file, is_json_array
@@ -45,28 +46,40 @@ def main(input_file: str, doc_type: str):
         'input_file': input_file
     }
     
-    # Load data
-    data = load_json_file(CONFIG['input_file'])
-    if not data:
-        return
-    
-    # Initialize client
-    client = CouchDBClient(
-        server_url=CONFIG['server_url'],
-        db_name=CONFIG['db_name'],
-        auth=CONFIG['auth']
-    )
-    
-    # Process based on data type
-    if is_json_array(data):
-        print(f'Uploading {len(data)} documents...\n')
-        success_count = client.bulk_create(doc_type,data)
-        print(f'Completed: {success_count}/{len(data)} documents uploaded')
+    def procees_single_json_file(file_path: str):
+        if not os.path.isfile(file_path):
+            print(f'File not found: {file_path}')
+            return None
+        
+        data = load_json_file(file_path)
+        if not data:
+            return
+        
+        # Initialize client
+        client = CouchDBClient(
+            server_url=CONFIG['server_url'],
+            db_name=CONFIG['db_name'],
+            auth=CONFIG['auth']
+        )
+        
+        # Process based on data type
+        if is_json_array(data):
+            print(f'Uploading {len(data)} documents...\n')
+            success_count = client.bulk_create(doc_type,data)
+            print(f'Completed: {success_count}/{len(data)} documents uploaded')
+        else:
+            print('Uploading single document...\n')
+            result = client.create_document(doc_type, data)
+            if result:
+                print(f'Success - ID: {result["id"]}, Rev: {result["rev"]}')
+
+    if os.path.isdir(CONFIG['input_file']):
+        for filename in os.listdir(CONFIG['input_file']):
+            if filename.endswith('.json'):
+                print(f'Processing file: {filename}')
+                procees_single_json_file(os.path.join(CONFIG['input_file'], filename))
     else:
-        print('Uploading single document...\n')
-        result = client.create_document(doc_type, data)
-        if result:
-            print(f'Success - ID: {result["id"]}, Rev: {result["rev"]}')
+        procees_single_json_file(CONFIG['input_file'])
 
 if __name__ == '__main__':
     TYPE_CONFIG = {
