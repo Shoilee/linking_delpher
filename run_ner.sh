@@ -3,10 +3,11 @@
 # Script to activate conda env and run NER function with arguments
 
 # Default values (override with command line args)
-CONDA_ENV="${1:-dutch_NER}"              # conda environment name
-MODEL_NAME="${2:-dslim/bert-base-NER}"  # NER model name
-TEXT="${3:-}"                      # Input text for NER
-LABEL_LIST="${4:-'O', 'B-PER', 'I-PER', 'B-ORG', 'I-ORG', 'B-LOC', 'I-LOC', 'B-MISC', 'I-MISC'}"  # Labels
+OUTPUT_DIR="${1:-dutch_NER}"              # conda environment name
+CONDA_ENV="${2:-dutch_NER}"              # conda environment name
+MODEL_NAME="${3:-dslim/bert-base-NER}"  # NER model name
+TEXT="${4:-}"                      # Input text for NER
+LABEL_LIST="${5:-'O', 'B-PER', 'I-PER', 'B-ORG', 'I-ORG', 'B-LOC', 'I-LOC', 'B-MISC', 'I-MISC'}"  # Labels
 
 # Colors for output
 RED='\033[0;31m'
@@ -54,8 +55,8 @@ from ner.ner_wrapper import ner
 model_name = '$MODEL_NAME'
 label_list = [$LABEL_LIST]
 text = '''$TEXT'''
-ner(model_name, label_list, text)
-
+output_dir='$OUTPUT_DIR'
+ner(model_name, label_list, text, output_dir)
 "
 
 echo -e "${YELLOW}Running NER...${NC}"
