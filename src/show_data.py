@@ -113,7 +113,7 @@ def show_dst_prop(paper_nr):
     #     if item.tag and item.text:
     #         if item.tag == prop:
     #             return item.text
-    return f'{secelector}, {response.json()}'
+    return response.content.decode('utf-8')
 
 
 def lookup_paper_publish_date(identifier):
