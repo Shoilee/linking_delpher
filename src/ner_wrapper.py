@@ -50,7 +50,8 @@ def get_ners_from_framework(target_id:int):
     ocr_text = get_text_from_framework(target_id)
     if not ocr_text :
         return Response(json.dumps({"ocr_bad": True, "ners": [], "ner_extended": []}), mimetype='application/json')
-    # TODO: invoke NER engine here, e.g. via subprocess 
+    
+    # invoke NER engine here, e.g. via subprocess 
     model_name = "emanjavacas/GysBERT"
     # label_list = ('O', 'B-PER', 'I-PER', 'B-ORG', 'I-ORG', 'B-LOC', 'I-LOC', 'B-MISC', 'I-MISC')
     text = get_text_from_framework(target_id)
@@ -69,10 +70,8 @@ def get_ners_from_framework(target_id:int):
 
 if __name__ == '__main__':
     app.run(debug=True, port=5001)
-    # get_ners_from_framework(1)
 
 
-# TODO: Call the actual NER engine
 # TODO: Normalise NER results into required format; 
 #           ners/tokens: list of unique entity strings [ "A", "B", "C", "D" ]. 
 #           ner_extended: list of dicts like: {"text": "A", "type": "ORG", "start_pos": 10, "end_pos": 12}       
