@@ -1,6 +1,8 @@
 from flask import Flask, Response
 import requests
 import json
+import subprocess
+import os
 
 app = Flask(__name__)
 
@@ -42,14 +44,34 @@ def get_text_from_framework(target_id:int):
     json_response = json.loads(response.content.decode('utf-8'))
     return check_ocr_quality(extract_ocr_text(json_response))
 
+@app.route("/dst_meta/<target_id>/ners")
+def get_ners_from_framework(target_id:int):
+    output_dir = os.getcwd()
+    ocr_text = get_text_from_framework(target_id)
+    if not ocr_text :
+        return Response(json.dumps({"ocr_bad": True, "ners": [], "ner_extended": []}), mimetype='application/json')
+    # TODO: invoke NER engine here, e.g. via subprocess 
+    model_name = "emanjavacas/GysBERT"
+    # label_list = ('O', 'B-PER', 'I-PER', 'B-ORG', 'I-ORG', 'B-LOC', 'I-LOC', 'B-MISC', 'I-MISC')
+    text = get_text_from_framework(target_id)
+    
+    # Run script and wait for completion
+    try: 
+        cmd = ["bash", "run_ner.sh", output_dir, "dutch_NER", model_name, text]
+        # print(",".join(label_list))
+        with open('text_output.txt', 'w+') as fout:
+            subprocess.run(cmd, stdout=fout, stderr=subprocess.PIPE, stdin=subprocess.PIPE, text=True, check=True)
+    except subprocess.CalledProcessError as e:
+        print(f"Script failed with code {e.returncode}")
+        print(f"Error: {e.stderr}")
+    except FileNotFoundError:
+        print("Script not found")
+
 if __name__ == '__main__':
     app.run(debug=True, port=5001)
+    # get_ners_from_framework(1)
 
 
-
-# TODO: fetch the text from the framework app
-# TODO: handle error: missing target, HTTP errors, empty text.
-# TODO: Implement OCR sanity check (Zipf-ish heuristic)
 # TODO: Call the actual NER engine
 # TODO: Normalise NER results into required format; 
 #           ners/tokens: list of unique entity strings [ "A", "B", "C", "D" ]. 
