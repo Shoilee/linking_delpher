@@ -72,13 +72,48 @@ def show_src_meta_prop(event_nr, prop):
 # =============================
 # PAPERS (DST)
 # =============================
-dst_set = ["ddd:110579079:mpeg21:a0211", "ddd:110579079:mpeg21:a0212"]
+
+def get_doc_ids_from_view(db_url, design_doc, view_name):
+    """Get all document IDs from a specific CouchDB view."""
+    view_url = 'http://admin:123456@127.0.0.1:5984/rinr-2026/_design/view/_view/article_text'
+    view_url = f"{db_url}/_design/{design_doc}/_view/{view_name}"
+    
+    # Query the view to get all rows
+    response = requests.get(view_url)
+    if response.status_code != 200:
+        print(f"View query failed: {response.text}")
+        return []
+    
+    data = response.json()
+    # Extract document IDs from each row
+    doc_ids = [row['id'] for row in data['rows']]
+
+    print(f"Found {len(doc_ids)} documents in view '{design_doc}/{view_name}'")
+    return doc_ids
+
+# dst_set = ["ddd:110579079:mpeg21:a0211", "ddd:110579079:mpeg21:a0212"]
+DB_URL = 'http://admin:123456@127.0.0.1:5984/rinr-2026'
+dst_set = get_doc_ids_from_view(DB_URL, 'view', 'article_text')
+
+# @app.route("/dst/<paper_nr>")
+# def show_dst(paper_nr):
+#     data = requests.get(f'http://resolver.kb.nl/resolve?urn={dst_set[int(paper_nr)]}:ocr')
+#     response = Response(data.content, mimetype='application/xml')
+#     return response
 
 @app.route("/dst/<paper_nr>")
-def show_dst(paper_nr):
-    data = requests.get(f'http://resolver.kb.nl/resolve?urn={dst_set[int(paper_nr)]}:ocr')
-    response = Response(data.content, mimetype='application/xml')
-    return response
+def show_dst_prop(paper_nr):
+    secelector = {"_id": f"{dst_set[int(paper_nr)]}"}
+    find_url = f"{DB_URL}/_find"
+    response = requests.post(find_url, json={"selector": secelector, "fields": ["_id","_rev", "type", "ocr_text"]}, headers={"Content-Type": "application/json"})
+    
+    # data = requests.get(f'http://resolver.kb.nl/resolve?urn={dst_set[int(paper_nr)]}:ocr')
+    # root = ET.fromstring(data.content.decode('utf-8'))
+    # for item in root.iter():
+    #     if item.tag and item.text:
+    #         if item.tag == prop:
+    #             return item.text
+    return f'{secelector}, {response.json()}'
 
 
 def lookup_paper_publish_date(identifier):
