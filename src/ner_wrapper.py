@@ -40,7 +40,7 @@ def get_text_from_framework(target_id:int):
         print(f"Error fetching text: {response.text}")
         return None
     json_response = json.loads(response.content.decode('utf-8'))
-    return extract_ocr_text(json_response)
+    return check_ocr_quality(extract_ocr_text(json_response))
 
 if __name__ == '__main__':
     app.run(debug=True, port=5001)
