@@ -53,6 +53,13 @@ if __name__ == '__main__':
             data = create_meta_data(event)
             json_dumps_str = json.dumps(data, indent=4)
             file.write(json_dumps_str)
-    
-
+    DB_CONFIG = {
+            'server_url': 'http://localhost:5984',
+            'db_name': 'rinr-2026-example',
+            'auth': ('admin', '123456'),
+            'input_path': file_path
+        }
+        
+    load_eventmeta2DB('event', DB_CONFIG)
+    os.remove(file_path)
 
