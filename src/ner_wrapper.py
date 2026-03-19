@@ -68,6 +68,8 @@ def get_ners_from_framework(target_id:int):
     except FileNotFoundError:
         print("Script not found")
 
+    return "SUCCESSFUL!"
+
 if __name__ == '__main__':
     app.run(debug=True, port=5001)
 
