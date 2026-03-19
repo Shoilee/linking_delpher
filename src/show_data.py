@@ -5,9 +5,10 @@ import json
 import xml.etree.ElementTree as ET
 from datetime import datetime, timezone
 
-
-with open('data/sample_events.json', 'r') as file:
+# CHANGE THIS BASED ON YOUR DESIRE
+with open('example/events.json', 'r') as file:
     ALL_EVENTS = json.load(file)
+COUCH_DB = "rinr-2026"
 
 app = Flask(__name__)
 
@@ -45,7 +46,12 @@ def literal_to_d_m_y(date_literal):
     return int(year), int(month), int(day)
 
 def create_meta_data(event):
-    year, month, day = literal_to_d_m_y(event.get("timeSpan_start", "") if event.get("timeSpan_start", "") else (0,0,0))
+    start_date = event.get("timeSpan_start", "")
+
+    # NOTE: start_date is required!!!
+    if not isinstance(start_date, str):
+        return "NO START DATE FOUND!"
+    year, month, day = literal_to_d_m_y(start_date)
     # NOTE: we are only using the start date for the meta data, but we could also use the end date if needed
     meta_data = {
         "fulltext": event.get("description", ""),
@@ -75,7 +81,7 @@ def show_src_meta_prop(event_nr, prop):
 
 def get_doc_ids_from_view(db_url, design_doc, view_name):
     """Get all document IDs from a specific CouchDB view."""
-    view_url = 'http://admin:123456@127.0.0.1:5984/rinr-2026/_design/view/_view/article_text'
+    view_url = f'http://admin:123456@127.0.0.1:5984/{COUCH_DB}/_design/view/_view/article_text'
     view_url = f"{db_url}/_design/{design_doc}/_view/{view_name}"
     
     # Query the view to get all rows
@@ -92,7 +98,7 @@ def get_doc_ids_from_view(db_url, design_doc, view_name):
     return doc_ids
 
 # dst_set = ["ddd:110579079:mpeg21:a0211", "ddd:110579079:mpeg21:a0212"]
-DB_URL = 'http://admin:123456@127.0.0.1:5984/rinr-2026'
+DB_URL = f'http://admin:123456@127.0.0.1:5984/{COUCH_DB}'
 dst_set = get_doc_ids_from_view(DB_URL, 'view', 'article_text')
 
 # @app.route("/dst/<paper_nr>")
