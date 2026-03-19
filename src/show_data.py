@@ -109,10 +109,6 @@ def show_dst_prop(paper_nr):
     #             return item.text
     return response.content.decode('utf-8')
 
-
-def lookup_paper_publish_date(identifier):
-    return '1912-01-01'
-
 @app.route("/dst_meta/<paper_nr>")
 def show_dst_meta(paper_nr):
     response = {"fulltext" : "",
