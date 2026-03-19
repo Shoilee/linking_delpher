@@ -37,14 +37,7 @@ class CouchDBClient:
         return success_count
 
 
-def main(input_file: str, doc_type: str):
-    # Configuration
-    CONFIG = {
-        'server_url': 'http://localhost:5984',
-        'db_name': 'rinr-2026',
-        'auth': ('admin', '123456'),
-        'input_file': input_file
-    }
+def main(doc_type: str, CONFIG):
     
     def procees_single_json_file(file_path: str):
         if not os.path.isfile(file_path):
@@ -73,13 +66,13 @@ def main(input_file: str, doc_type: str):
             if result:
                 print(f'Success - ID: {result["id"]}, Rev: {result["rev"]}')
 
-    if os.path.isdir(CONFIG['input_file']):
-        for filename in os.listdir(CONFIG['input_file']):
+    if os.path.isdir(CONFIG['input_path']):
+        for filename in os.listdir(CONFIG['input_path']):
             if filename.endswith('.json'):
                 print(f'Processing file: {filename}')
-                procees_single_json_file(os.path.join(CONFIG['input_file'], filename))
+                procees_single_json_file(os.path.join(CONFIG['input_path'], filename))
     else:
-        procees_single_json_file(CONFIG['input_file'])
+        procees_single_json_file(CONFIG['input_path'])
 
 if __name__ == '__main__':
     TYPE_CONFIG = {
@@ -90,7 +83,7 @@ if __name__ == '__main__':
     }
 
     parser = argparse.ArgumentParser(description='Load JSON data into CouchDB')
-    parser.add_argument('-i', '--input_file', help='Path to the JSON file to load')
+    parser.add_argument('-i', '--input_path', help='Path to the JSON file to load')
 
     # Add flags dynamically
     for doc_type, (arg, help_text) in TYPE_CONFIG.items():
@@ -98,14 +91,22 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
+    # Configuration
+    DB_CONFIG = {
+        'server_url': 'http://localhost:5984',
+        'db_name': 'rinr-2026',
+        'auth': ('admin', '123456'),
+        'input_path': args.input_path 
+    }
+
     # Find which type was specified
     doc_type = next((t for t, v in vars(args).items() if v and t in TYPE_CONFIG), None)
     if doc_type:
-        input_file = args.input_file        
-        if not input_file:
-            print('Input file is required. Use -i or --input_file to specify the JSON file.')
+        input_path = args.input_path        
+        if not input_path:
+            print('Input path is required. Use -i or --input_path to specify the JSON file.')
         else:
-            # print(f'Loading {doc_type} data from {input_file}...')
-            main(input_file, doc_type)
+            # print(f'Loading {doc_type} data from {input_path}...')
+            main(doc_type, DB_CONFIG)
     else:
         print('No data type specified. Use -e, -em, -a, or -am.')
