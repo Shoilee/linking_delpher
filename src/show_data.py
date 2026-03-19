@@ -4,6 +4,7 @@ import json
 
 import xml.etree.ElementTree as ET
 from datetime import datetime, timezone
+from utils import json_pretty_print
 
 # CHANGE THIS BASED ON YOUR DESIRE
 with open('example/events.json', 'r') as file:
@@ -35,53 +36,8 @@ def show_src(event_nr):
     
     return response
 
-
-def make_utc_date(year, month, day):
-    dt = datetime(int(year), int(month), int(day), tzinfo=timezone.utc)
-    return dt.strftime("%Y-%m-%dT%H:%M:%SZ")
-
-def literal_to_d_m_y(date_literal):
-    # Example: "1940-01-21" -> (1940, 1, 21)
-    year, month, day = date_literal.split("-")
-    return int(year), int(month), int(day)
-
-def create_meta_data(event):
-    start_date = event.get("timeSpan_start", "")
-
-    # NOTE: start_date is required!!!
-    if not isinstance(start_date, str):
-        return "NO START DATE FOUND!"
-    year, month, day = literal_to_d_m_y(start_date)
-    # NOTE: we are only using the start date for the meta data, but we could also use the end date if needed
-    meta_data = {
-        "fulltext": event.get("description", ""),
-        "title": event.get("title", ""),
-        "date_y": year,
-        "date_m": month,
-        "date_d": day,
-        "UTC_DATE": make_utc_date(year, month, day),
-        "entities": set()
-    }
-    return meta_data
-
-@app.route("/src_meta/<event_nr>")
-def show_src_meta(event_nr):
-    return f"{create_meta_data(ALL_EVENTS[int(event_nr)])}"
-    
-@app.route("/src_meta/<event_nr>/<prop>")
-def show_src_meta_prop(event_nr, prop):
-    know_props = "utc_date", "fulltext", "entities", "title", "date_y", "date_m", "date_d", 
-    if not prop in know_props:
-        return ""
-    return f"This is property {prop} is: {create_meta_data(ALL_EVENTS[int(event_nr)])[prop]}"
-
-# =============================
-# PAPERS (DST)
-# =============================
-
 def get_doc_ids_from_view(db_url, design_doc, view_name):
     """Get all document IDs from a specific CouchDB view."""
-    view_url = f'http://admin:123456@127.0.0.1:5984/{COUCH_DB}/_design/view/_view/article_text'
     view_url = f"{db_url}/_design/{design_doc}/_view/{view_name}"
     
     # Query the view to get all rows
@@ -97,8 +53,40 @@ def get_doc_ids_from_view(db_url, design_doc, view_name):
     print(f"Found {len(doc_ids)} documents in view '{design_doc}/{view_name}'")
     return doc_ids
 
-# dst_set = ["ddd:110579079:mpeg21:a0211", "ddd:110579079:mpeg21:a0212"]
 DB_URL = f'http://admin:123456@127.0.0.1:5984/{COUCH_DB}'
+src_meta_set = get_doc_ids_from_view(DB_URL, 'view', 'event')
+
+@app.route("/src_meta/<event_nr>")
+def show_src_meta(event_nr):
+    secelector = {"_id": f"{src_meta_set[int(event_nr)]}"}
+    find_url = f"{DB_URL}/_find"
+    response = requests.post(find_url, json={"selector": secelector}, headers={"Content-Type": "application/json"})
+    json_respinse = json.loads(response.content.decode('utf-8'))
+    # data = requests.get(f'http://resolver.kb.nl/resolve?urn={dst_set[int(paper_nr)]}:ocr')
+    # root = ET.fromstring(data.content.decode('utf-8'))
+    # for item in root.iter():
+    #     if item.tag and item.text:
+    #         if item.tag == prop:
+    #             return item.text
+    return json_respinse
+    
+@app.route("/src_meta/<event_nr>/<prop>")
+def show_src_meta_prop(event_nr, prop):
+    know_props = "utc_date", "fulltext", "entities", "title", "date_y", "date_m", "date_d", 
+    if not prop in know_props:
+        return f"No such prop: {prop}"
+    
+    secelector = {"_id": f"{src_meta_set[int(event_nr)]}"}
+    find_url = f"{DB_URL}/_find"
+    response = requests.post(find_url, json={"selector": secelector}, headers={"Content-Type": "application/json"})
+    json_data = json.loads(response.content).get('docs')[0][prop]
+    return f"This is property {prop} is: {json_data}"
+
+# =============================
+# PAPERS (DST)
+# =============================
+
+# dst_set = ["ddd:110579079:mpeg21:a0211", "ddd:110579079:mpeg21:a0212"]
 dst_set = get_doc_ids_from_view(DB_URL, 'view', 'article_text')
 
 # @app.route("/dst/<paper_nr>")
