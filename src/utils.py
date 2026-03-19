@@ -18,3 +18,8 @@ def load_json_file(filepath: str) -> Union[List[Dict[str, Any]], Dict[str, Any]]
 def is_json_array(data) -> bool:
     """Check if loaded data is a list/array."""
     return isinstance(data, list)
+
+def json_pretty_print(json_data:str):
+    obj = json.loads(json_data)
+    json_formatted_str = json.dumps(obj, indent=4)
+    return json_formatted_str
