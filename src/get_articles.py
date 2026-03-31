@@ -125,9 +125,9 @@ def get_didl(prefix, identifier, ppn=None):
     if ppn and not os.path.isdir(ppn):
         os.mkdir(os.path.join(OUTPUT_DIR, ppn))
 
-    fname = OUTPUT_DIR +os.sep+ ppn + os.sep + identifier + '.xml' if ppn is not None else 'data/DST' + os.sep + identifier + '.xml'
+    fname = OUTPUT_DIR +os.sep+ ppn + os.sep + identifier + '.xml' if ppn is not None else OUTPUT_DIR + os.sep + identifier + '.xml'
     fname = fname.replace(':', '_')
-
+   
     if not os.path.isfile(fname):
         resp = requests.get(url)
         # print(resp.content.decode('utf-8'))
@@ -178,7 +178,7 @@ def get_articles_by_ppn(ppn_filepath='data/sample_PPNA.txt'):
 
 def parse_resp_events(instr):
     data = lxml.etree.fromstring(instr)
-  
+    
     for i in data.iter():
         if i.tag == '{http://purl.org/dc/elements/1.1/}identifier':
             identifier = i.text.split('=')[-1].split(':')[:-1] # e.g., ddd:010905171:mpeg21:a0002
@@ -215,6 +215,5 @@ if __name__ == "__main__":
     COUCH_DB = "rinr-2026-example"
     ALL_EVENTS = create_event_metadata_list(COUCH_DB)
     
-    print(f"{ALL_EVENTS}")
     get_article_by_event(ALL_EVENTS)
     # get_articles_by_ppn()
