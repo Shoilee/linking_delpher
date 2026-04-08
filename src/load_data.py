@@ -84,6 +84,7 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='Load JSON data into CouchDB')
     parser.add_argument('-i', '--input_path', help='Path to the JSON file to load')
+    parser.add_argument('-db', '--database', help='CouchDB name to load the data into', default='rinr-2026')
 
     # Add flags dynamically
     for doc_type, (arg, help_text) in TYPE_CONFIG.items():
@@ -94,7 +95,7 @@ if __name__ == '__main__':
     # Configuration
     DB_CONFIG = {
         'server_url': 'http://localhost:5984',
-        'db_name': 'rinr-2026',
+        'db_name': args.database,
         'auth': ('admin', '123456'),
         'input_path': args.input_path 
     }
