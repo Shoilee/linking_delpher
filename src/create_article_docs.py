@@ -31,7 +31,7 @@ def get_article_text(identifier):
 if __name__ == '__main__':
     OUTPUT_DIR = 'data/DST'
     INPUT_DIR = 'data/DST_XML'
-    for filename in tqdm(os.listdir(INPUT_DIR)):
+    for filename in tqdm([f for f in os.listdir(INPUT_DIR) if f.endswith('.xml')], desc="Processing XML files"):
         xml = etree.parse(f'data/DST_XML/{filename}')
         root = xml.getroot()
         
