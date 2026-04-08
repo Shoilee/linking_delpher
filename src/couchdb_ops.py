@@ -1,5 +1,5 @@
 import requests
-import json
+import argparse
 
 
 
@@ -30,6 +30,7 @@ def delete_all_by_type(db_url, doc_type):
     # Step 2: Prepare bulk update docs with _deleted: true
     bulk_docs = [{"_id": d["_id"], "_rev": d["_rev"], "_deleted": True} for d in docs]
     
+    # TODO: for some reason it only deletes 25 documents, even though there are more than 25 documents with type type. Maybe we need to do it in batches of 25?
     # Step 3: Bulk delete (logical delete)
     bulk_url = f"{db_url}/_bulk_docs"
     bulk_response = requests.post(bulk_url, json={"docs": bulk_docs})
@@ -42,6 +43,14 @@ def delete_all_by_type(db_url, doc_type):
         print(f"Bulk delete failed: {bulk_response.text}")
 
 if __name__ == '__main__':
-    DB_URL = 'http://admin:123456@localhost:5984/rinr-2026'  # Replace with your CouchDB URL and DB name
+    arguments = argparse.ArgumentParser()
+    arguments.add_argument('-db', '--database', help='CouchDB URL', required=False)
+    arguments.add_argument('-t', '--type', help='Document type to delete, e.g., "event" or "article"', required=True)
+    args = arguments.parse_args()
+
+    COUCH_DB = args.database if args.database else "rinr-2026"
+    DOC_TYPE = args.type 
+
+    DB_URL = f'http://admin:123456@localhost:5984/{COUCH_DB}'
     # auth = ('admin', '123456')  # CouchDB credentials
-    delete_all_by_type(DB_URL, 'event')
+    delete_all_by_type(DB_URL, DOC_TYPE)
