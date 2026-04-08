@@ -1,3 +1,5 @@
+from ast import arg
+import argparse
 from datetime import datetime, timezone
 import json
 import os
@@ -37,27 +39,31 @@ def create_meta_data(event):
     return meta_data
 
 if __name__ == '__main__':
-    COUCH_DB = "rinr-2026-example"
-    
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-db',type=str, help='CouchDB name to load the data into', required=False)
+    parser.add_argument('-i', '--input_path', help='Path to the JSON file to load', required=False)
 
-    DIRECTORY = 'example'
+    args = parser.parse_args()
+    COUCH_DB = args.db if args.db else "rinr-2026"
+    DIRECTORY = args.input_path if args.input_path else "data"
+
     with open(os.path.join(DIRECTORY, 'events.json'), 'r') as file:
         ALL_EVENTS = json.load(file)
 
+    counter = 0
     for event in ALL_EVENTS:
-        # TODO: load to couch_db
-        # store in a json file
-
-        file_path = os.path.join(DIRECTORY, 'events_meta_temp.json')
+        file_path = os.path.join(DIRECTORY, 'SRC', f'events_meta_{counter}.json')
         with open(file_path, 'w+') as file:
             data = create_meta_data(event)
             json_dumps_str = json.dumps(data, indent=4)
             file.write(json_dumps_str)
+        counter += 1
+
     DB_CONFIG = {
             'server_url': 'http://localhost:5984',
-            'db_name': 'rinr-2026-example',
+            'db_name': COUCH_DB,
             'auth': ('admin', '123456'),
-            'input_path': file_path
+            'input_path': os.path.join(DIRECTORY, 'SRC')
         }
         
     load_eventmeta2DB('event', DB_CONFIG)
