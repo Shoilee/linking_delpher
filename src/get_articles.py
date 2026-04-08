@@ -183,6 +183,11 @@ def parse_resp_events(instr):
         if i.tag == '{http://purl.org/dc/elements/1.1/}identifier':
             identifier = i.text.split('=')[-1].split(':')[:-1] # e.g., ddd:010905171:mpeg21:a0002
             prefix = identifier[0].upper()  
+
+            # here we are moving to page from article metadata, 
+                # so we need to fetch the page metadata using the identifier of the article, 
+                # which is the same as the identifier of the page metadata except for the last part 
+                # (e.g., a0002 -> mpeg21)
             identifier = ':'.join(identifier[:-1]) # e.g., ddd:010905171:mpeg21
             # print(f"Identifier: {identifier}")
             get_didl(prefix, identifier)
