@@ -112,12 +112,58 @@ def create_event_metadata_list(COUCH_DB):
 #                 {"title": "Expeditie naar Nias", "fulltext": "Description of event 2", "date_y": 1863},
 #                 {"title": "Tapanahoni Expeditie", "fulltext": "Description of event 3", "date_y": 1904}]
 
-def get_didl(prefix, identifier, ppn=None):
+
+def filter_articles_by_id(xml_content, current_article_id):
+    """
+    Process OAI-PMH/DIDL response to keep only didl:Item with 
+    matching ddd:article_id = current_article_id
+    """
+    
+    # Define namespaces from your file
+    namespaces = {
+        'didl': 'urn:mpeg:mpeg21:2002:02-DIDL-NS',
+        'ddd': 'http://www.kb.nl/namespaces/ddd',
+    }
+    
+    # Parse the XML (handles large 346KB file)
+    parser = lxml.etree.XMLParser(recover=True, remove_blank_text=True)
+    root = lxml.etree.fromstring(xml_content, parser)
+    
+    # Count before filtering
+    all_items = root.xpath('.//didl:Item', namespaces=namespaces)
+    
+    # Find and remove non-matching articles
+    items_to_remove = []
+    for item in all_items:
+        # Check if item has ddd:article_id attribute
+        article_id = item.get('{http://www.kb.nl/namespaces/ddd}article_id')
+        
+        if article_id:
+            article_id = article_id.split(':')[-1]  # Extract the last part after the last colon
+            if article_id != current_article_id:
+                items_to_remove.append(item)
+            
+    # Remove non-matching items
+    for item in items_to_remove:
+        parent = item.getparent()
+        if parent is not None:
+            parent.remove(item)
+    
+    # Pretty print result
+    filtered_xml = lxml.etree.tostring(
+        root,
+        pretty_print=True,
+        encoding='unicode'
+    )
+    
+    return filtered_xml
+
+
+def get_didl(prefix, identifier, article_id, ppn=None):
     if not prefix == 'DDD':
         prefix = 'KRANTEN:'+prefix
     url = DIDL % (prefix +':'+identifier)
     # print(f"Fetching DIDL for identifier: {identifier} with url: {url}")
-    
     
     # e.g., url= https://services.kb.nl/mdo/oai?verb=GetRecord&identifier=DDD:ddd:010905171:mpeg21&metadataPrefix=didl
     #            https://services.kb.nl/mdo/oai?verb=GetRecord&identifier=MMKB19:MMKB19:000691071:mpeg21&metadataPrefix=didl
@@ -127,12 +173,14 @@ def get_didl(prefix, identifier, ppn=None):
 
     fname = OUTPUT_DIR +os.sep+ ppn + os.sep + identifier + '.xml' if ppn is not None else OUTPUT_DIR + os.sep + identifier + '.xml'
     fname = fname.replace(':', '_')
-   
+    
     if not os.path.isfile(fname):
         resp = requests.get(url)
+        filtered_xml = filter_articles_by_id(resp.content.decode('utf-8'), article_id)
+        
         # print(resp.content.decode('utf-8'))
         with open(fname, 'w') as fh:
-            fh.write(resp.content.decode('utf-8'))
+            fh.write(filtered_xml)
 
 
 def parse_resp_ppns(instr, ppn):
@@ -183,6 +231,7 @@ def parse_resp_events(instr):
         if i.tag == '{http://purl.org/dc/elements/1.1/}identifier':
             identifier = i.text.split('=')[-1].split(':')[:-1] # e.g., ddd:010905171:mpeg21:a0002
             prefix = identifier[0].upper()  
+            article_identifier = identifier[-1] # e.g., a0002
 
             # here we are moving to page from article metadata, 
                 # so we need to fetch the page metadata using the identifier of the article, 
@@ -190,7 +239,7 @@ def parse_resp_events(instr):
                 # (e.g., a0002 -> mpeg21)
             identifier = ':'.join(identifier[:-1]) # e.g., ddd:010905171:mpeg21
             # print(f"Identifier: {identifier}")
-            get_didl(prefix, identifier)
+            get_didl(prefix, identifier, article_identifier)
 
 def get_article_by_event(event_set):
     for event in event_set:
