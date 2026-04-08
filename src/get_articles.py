@@ -1,3 +1,4 @@
+import argparse
 import os, json
 import requests
 import lxml.etree
@@ -10,9 +11,6 @@ https://jsru.kb.nl/sru/sru?version=1.2&operation=searchRetrieve&x-collection=DDD
 
 https://jsru.kb.nl/sru/sru?query=ppna=45136599&version=1.2&operation=searchRetrieve&x-collection=DDD_artikel&recordSchema=indexing&startRecord=1&maximumRecords=50
 """
-
-
-OUTPUT_DIR="example/DST"
 
 # retrieve the individual issue with the same PPN
 URL = f'https://jsru.kb.nl/sru/sru?query=ppna=%s&version=1.2&operation=searchRetrieve&startRecord=1&maximumRecords=1&recordSchema=ddd&x-collection=DDD_krantnr&x-fields=ppna'
@@ -159,7 +157,7 @@ def filter_articles_by_id(xml_content, current_article_id):
     return filtered_xml
 
 
-def get_didl(prefix, identifier, article_id, ppn=None):
+def get_didl(prefix, identifier, article_id, OUTPUT_DIR, ppn=None):
     if not prefix == 'DDD':
         prefix = 'KRANTEN:'+prefix
     url = DIDL % (prefix +':'+identifier)
@@ -167,7 +165,8 @@ def get_didl(prefix, identifier, article_id, ppn=None):
     
     # e.g., url= https://services.kb.nl/mdo/oai?verb=GetRecord&identifier=DDD:ddd:010905171:mpeg21&metadataPrefix=didl
     #            https://services.kb.nl/mdo/oai?verb=GetRecord&identifier=MMKB19:MMKB19:000691071:mpeg21&metadataPrefix=didl
-
+    
+    OUTPUT_DIR = os.path.join(OUTPUT_DIR, 'DST_XML')
     if ppn and not os.path.isdir(ppn):
         os.mkdir(os.path.join(OUTPUT_DIR, ppn))
 
@@ -224,7 +223,7 @@ def get_articles_by_ppn(ppn_filepath='data/sample_PPNA.txt'):
                 parse_resp_ppns(resp, ppn)
 
 
-def parse_resp_events(instr):
+def parse_resp_events(instr, dir):
     data = lxml.etree.fromstring(instr)
     
     for i in data.iter():
@@ -239,14 +238,14 @@ def parse_resp_events(instr):
                 # (e.g., a0002 -> mpeg21)
             identifier = ':'.join(identifier[:-1]) # e.g., ddd:010905171:mpeg21
             # print(f"Identifier: {identifier}")
-            get_didl(prefix, identifier, article_identifier)
+            get_didl(prefix, identifier, article_identifier, OUTPUT_DIR)
 
-def get_article_by_event(event_set):
+def get_article_by_event(event_set, OUTPUT_DIR):
     for event in event_set:
         title = event.get("title", "")
         fulltext = event.get("fulltext", "")
         date_y = event.get("date_y", "")
-        print(f"Title: {title}, Fulltext: {fulltext}, Date: {date_y}")
+        # print(f"Title: {title}, Fulltext: {fulltext}, Date: {date_y}")
 
         base_url = base_EVENT_BASED_URL % (title, date_y-10, date_y+10)
 
@@ -263,11 +262,20 @@ def get_article_by_event(event_set):
             paged_url = iter_EVENT_BASED_URL % (start, title, date_y-10, date_y+10)
             # print(paged_url)
             paged_resp = requests.get(paged_url)
-            parse_resp_events(paged_resp.content)
+            parse_resp_events(paged_resp.content, OUTPUT_DIR)
 
 if __name__ == "__main__":
-    COUCH_DB = "rinr-2026-example"
+    arguments = argparse.ArgumentParser()
+    arguments.add_argument('-db', '--database', help='CouchDB URL', required=False)
+    arguments.add_argument('-o', '--output_path', help='Path to the JSON file to save', required=True)
+    args = arguments.parse_args()
+    COUCH_DB = args.database if args.database else "rinr-2026"
+    OUTPUT_DIR = args.output_path
+    print(f"Using CouchDB database: {COUCH_DB}")
+    print(f"Output directory: {OUTPUT_DIR}")
+
+
     ALL_EVENTS = create_event_metadata_list(COUCH_DB)
     
-    get_article_by_event(ALL_EVENTS)
+    get_article_by_event(ALL_EVENTS, OUTPUT_DIR=OUTPUT_DIR)
     # get_articles_by_ppn()
