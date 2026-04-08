@@ -16,6 +16,20 @@ def literal_to_d_m_y(date_literal):
     year, month, day = date_literal.split("-")
     return int(year), int(month), int(day)
 
+import re
+
+def separate_bracket_content(text):
+    match = re.match(r'^(.+?)\s*\(([^)]+)\)(.*)$', text.strip())
+    
+    if match:
+        main_text = match.group(1).strip()
+        bracket_content = match.group(2).strip()
+        trailing = match.group(3).strip()
+        return main_text+" "+trailing, bracket_content
+    
+    return (text, "")  # Return original if no brackets found
+
+
 def create_meta_data(event):
     start_date = event.get("timeSpan_start", "")
 
@@ -26,7 +40,9 @@ def create_meta_data(event):
     # NOTE: we are only using the start date for the meta data, but we could also use the end date if needed
     meta_data = {
         "id": event.get("id", ""),
-        "title": event.get("title", ""),
+        "label": event.get("title", ""),
+        "title": separate_bracket_content(event.get("title", ""))[0],
+        "context": separate_bracket_content(event.get("title", ""))[1] if separate_bracket_content(event.get("title", "")) else "",
         "timeSpan_start": event.get("timeSpan_start", ""),
         "timeSpan_end": event.get("timeSpan_start", ""),
         "date_y": year,
