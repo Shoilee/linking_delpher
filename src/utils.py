@@ -1,4 +1,5 @@
 import json
+import re
 from typing import Union, List, Dict, Any
 
 ### Utility functions for JSON handling ###
@@ -23,3 +24,12 @@ def json_pretty_print(json_data:str):
     obj = json.loads(json_data)
     json_formatted_str = json.dumps(obj, indent=4)
     return json_formatted_str
+
+
+def extract_str(query_str, match_str):
+    pattern = re.escape(match_str) + r'([^&\s<>"\']*)'
+    match = re.search(pattern, query_str)
+    
+    if match:
+        return match.group(1).strip()
+    return None
