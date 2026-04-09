@@ -5,7 +5,7 @@ For project update see the [wiki](https://github.com/Shoilee/linking_delpher/wik
 
 ### Data Processing
 - Create Event Metadata and load it to couchDB
-  - `src/process_events.py`
+  - `python src/process_events.py`
   - Starts with CouchDB database name and directory to operate on 
 - Get Article
   - `src/get_articles.py`
@@ -15,7 +15,6 @@ For project update see the [wiki](https://github.com/Shoilee/linking_delpher/wik
   - [ ] clarify how the SRU match was performed
   - returns/stores the related newspaper issues (not that they are not the article, but the whole isssues)
   - Note that, at this point we are not only harvesting articles that are only relavent to events, but also all other articles from the same issue. 
-  - [ ] only take the matched articles
 - load articles to couchDB
   - Convert xml `src/create_article_docs.py`
   - load data `python src/load_data.py --article -i <input_dir>`
@@ -23,3 +22,7 @@ For project update see the [wiki](https://github.com/Shoilee/linking_delpher/wik
 - show data
   - `src/show_data.py`
   - change global variable COUCH_DB for desired database
+
+Things to discuss: 
+- [ ] why there is a gap in between DST / DST_XML
+- [ ] how can we increase event vs article results
