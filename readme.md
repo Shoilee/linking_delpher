@@ -12,11 +12,8 @@ For project update see the [wiki](https://github.com/Shoilee/linking_delpher/wik
   - starts with the CouchDB database name
   - harvest the events metadata list from the dataase
   - query for the articles related to events (i.e., event title string match and publication year+/- 10 yrs)
-  - [ ] clarify how the SRU match was performed
   - returns/stores the related newspaper issues (not that they are not the article, but the whole isssues)
-  - Note that, at this point we are not only harvesting articles that are only relavent to events, but also all other articles from the same issue. 
 - load articles to couchDB
-  - Convert xml `src/create_article_docs.py`
   - load data `python src/load_data.py --article -i <input_dir>`
 - [ ] automatically create database in couchDB and automatically create views
 - show data
@@ -24,5 +21,5 @@ For project update see the [wiki](https://github.com/Shoilee/linking_delpher/wik
   - change global variable COUCH_DB for desired database
 
 Things to discuss: 
-- [ ] why there is a gap in between DST / DST_XML
-- [ ] how can we increase event vs article results
+- [x] why there is a gap in between DST / DST_XML
+- [x] how can we increase event vs article results
