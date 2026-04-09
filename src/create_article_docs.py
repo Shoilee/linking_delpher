@@ -1,5 +1,6 @@
 
 import os
+import argparse
 from lxml import etree
 import xmltodict, json
 import requests
@@ -29,10 +30,16 @@ def get_article_text(identifier):
         print(f"Failed to retrieve OCR text for identifier: {identifier}, status code: {req.status_code}")
 
 if __name__ == '__main__':
-    OUTPUT_DIR = 'data/DST'
-    INPUT_DIR = 'data/DST_XML'
+    
+    arguments = argparse.ArgumentParser()
+    arguments.add_argument('-dir', '--directory', help='Directory containing XML files', required=False)
+    args = arguments.parse_args()
+    DIRECTORY = args.directory if args.directory else "data"
+
+    OUTPUT_DIR = f'{DIRECTORY}/DST'
+    INPUT_DIR = f'{DIRECTORY}/DST_XML'
     for filename in tqdm([f for f in os.listdir(INPUT_DIR) if f.endswith('.xml')], desc="Processing XML files"):
-        xml = etree.parse(f'data/DST_XML/{filename}')
+        xml = etree.parse(f'{INPUT_DIR}/{filename}')
         root = xml.getroot()
         
         articles_xml = get_all_articles(root)
