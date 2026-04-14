@@ -140,6 +140,8 @@ def get_article_by_event(event_set, OUTPUT_DIR):
                 break
         print(f"Total results: {total_nr_results} for event: {title}")
 
+        if total_nr_results == 0:
+            continue
         inv = 100 if total_nr_results > 100 else total_nr_results
         for start in range(1, total_nr_results+1, inv):
             paged_url = iter_EVENT_BASED_URL % (start, inv, title, date_y-10, date_y+10)
