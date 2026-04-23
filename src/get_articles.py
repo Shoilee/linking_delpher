@@ -27,9 +27,9 @@ URL1 = f'https://jsru.kb.nl/sru/sru?query=ppna=%s&version=1.2&operation=searchRe
 
 DIDL = 'https://services.kb.nl/mdo/oai?verb=GetRecord&identifier=%s&metadataPrefix=didl'
 
-base_EVENT_BASED_URL = f"https://jsru.kb.nl/sru/sru?version=1.2&operation=searchRetrieve&x-collection=DDD_artikel&recordSchema=indexing&startRecord=1&maximumRecords=1&query=\"%s\" AND (date within \"%s %s\")"
+base_EVENT_BASED_URL = f"https://jsru.kb.nl/sru/sru?version=1.2&operation=searchRetrieve&x-collection=DDD_artikel&recordSchema=indexing&startRecord=1&maximumRecords=1&query=(content all \"%s\") AND (date within \"%s %s\")"
 # iter_EVENT_BASED_URL = f"https://jsru.kb.nl/sru/sru?version=1.2&operation=searchRetrieve&x-collection=DDD_artikel&recordSchema=indexing&startRecord=%s&maximumRecords=%s&query=\"%s\" AND (date within \"%s %s\")"
-iter_EVENT_BASED_URL = f"https://jsru.kb.nl/sru/sru?version=1.2&operation=searchRetrieve&x-collection=DDD_artikel&startRecord=%s&maximumRecords=%s&query=\"%s\" AND (date within \"%s %s\")&recordSchema=ddd&x-fields=zones"
+iter_EVENT_BASED_URL = f"https://jsru.kb.nl/sru/sru?version=1.2&operation=searchRetrieve&x-collection=DDD_artikel&startRecord=%s&maximumRecords=%s&query=(content all \"%s\") AND (date within \"%s %s\")&recordSchema=ddd&x-fields=zones"
 
 
 # /mdo/oai?
@@ -142,7 +142,7 @@ def get_article_by_event(event_set, OUTPUT_DIR):
 
         if total_nr_results == 0:
             continue
-        inv = 100 if total_nr_results > 100 else total_nr_results
+        inv = 10 if total_nr_results > 10 else total_nr_results
         for start in range(1, total_nr_results+1, inv):
             paged_url = iter_EVENT_BASED_URL % (start, inv, title, date_y-10, date_y+10)
             # print(f"Fetching articles for event: {title} with paged URL: {paged_url}")
@@ -151,7 +151,7 @@ def get_article_by_event(event_set, OUTPUT_DIR):
 
 if __name__ == "__main__":
     arguments = argparse.ArgumentParser()
-    arguments.add_argument('-db', '--database', help='CouchDB URL', required=False)
+    arguments.add_argument('-db', '--database', help='CouchDB database name', required=False)
     arguments.add_argument('-o', '--output_path', help='Path to the JSON file to save', required=True)
     args = arguments.parse_args()
     COUCH_DB = args.database if args.database else "rinr-2026"
