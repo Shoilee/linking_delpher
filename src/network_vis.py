@@ -226,7 +226,7 @@ st.sidebar.caption(
     f"Showing {len(filtered_elements['edges'])} of {len(elements.get('edges', []))} edges."
 )
 
-st.title("Network visualization")
+st.title("Person Disambiguation Visualization")
 
 node_styles = [
     NodeStyle("PERSON", "#2A629B", "name", "cloud"),
