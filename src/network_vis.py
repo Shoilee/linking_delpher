@@ -6,7 +6,8 @@ from st_link_analysis import st_link_analysis, NodeStyle, EdgeStyle
 
 st.set_page_config(layout="wide")
 
-GRAPH_PATH = Path("DST/graph_output.json")
+DATA_DIR = Path("../data")
+GRAPH_PATH = DATA_DIR / "graph_output.json"
 
 
 def clean_edges(elements):
