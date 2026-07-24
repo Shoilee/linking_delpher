@@ -89,6 +89,27 @@ def delete_selected_nodes(elements, selected_node_ids):
     return elements, original_node_count - len(elements.get("nodes", [])), original_edge_count - len(elements.get("edges", []))
 
 
+def filter_edges_by_metadata(elements, edge_filters):
+    filtered_edges = []
+    for edge in elements.get("edges", []):
+        edge_data = edge.get("data", {})
+        matches_filters = True
+        for key, filter_value in edge_filters.items():
+            value = edge_data.get(key)
+            if isinstance(filter_value, tuple):
+                minimum, maximum = filter_value
+                if value is None or not minimum <= value <= maximum:
+                    matches_filters = False
+                    break
+            elif filter_value and value not in filter_value:
+                matches_filters = False
+                break
+        if matches_filters:
+            filtered_edges.append(edge)
+
+    return {**elements, "edges": filtered_edges}
+
+
 # Load the data
 with GRAPH_PATH.open("r", encoding="utf-8") as f:
     initial_elements = json.load(f)
@@ -116,6 +137,15 @@ edge_lookup = {
 }
 
 edge_ids = sort_ids(edge_lookup.keys())
+
+edge_keys = sorted(
+    {
+        key
+        for edge in elements.get("edges", [])
+        for key in edge.get("data", {})
+        if key not in {"id", "source", "target"}
+    }
+)
 
 st.sidebar.title("Graph editor")
 st.sidebar.caption("Delete graph elements here and save the updated JSON when you are done.")
@@ -160,6 +190,42 @@ if st.sidebar.button("Save updated graph"):
     except Exception as exc:
         st.sidebar.error(f"Unable to save JSON: {exc}")
 
+st.sidebar.subheader("Filter edges")
+edge_filters = {}
+for key in edge_keys:
+    values = [
+        edge.get("data", {}).get(key)
+        for edge in elements.get("edges", [])
+        if edge.get("data", {}).get(key) is not None
+    ]
+    if not values:
+        continue
+
+    if all(isinstance(value, (int, float)) and not isinstance(value, bool) for value in values):
+        minimum = min(values)
+        maximum = max(values)
+        if minimum != maximum:
+            edge_filters[key] = st.sidebar.slider(
+                key.replace("_", " ").title(),
+                min_value=float(minimum),
+                max_value=float(maximum),
+                value=(float(minimum), float(maximum)),
+            )
+    else:
+        options = sorted({str(value) for value in values})
+        selected_values = st.sidebar.multiselect(
+            key.replace("_", " ").title(),
+            options=options,
+            key=f"edge_filter_{key}",
+        )
+        if selected_values:
+            edge_filters[key] = set(selected_values)
+
+filtered_elements = filter_edges_by_metadata(elements, edge_filters)
+st.sidebar.caption(
+    f"Showing {len(filtered_elements['edges'])} of {len(elements.get('edges', []))} edges."
+)
+
 st.title("Network visualization")
 
 node_styles = [
@@ -173,7 +239,7 @@ edge_styles = [
 layout = {"name": "cose", "animate": "end", "nodeDimensionsIncludeLabels": False}
 
 st_link_analysis(
-    elements,
+    filtered_elements,
     node_styles=node_styles,
     edge_styles=edge_styles,
     layout=layout,
