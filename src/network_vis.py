@@ -229,7 +229,7 @@ st.sidebar.caption(
 st.title("Person Disambiguation Visualization")
 
 node_styles = [
-    NodeStyle("PERSON", "#2A629B", "name", "cloud"),
+    NodeStyle("PERSON", "#2A629B", "name", "person"),
 ]
 
 edge_styles = [
