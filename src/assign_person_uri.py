@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 
-input_path = Path("../data/graph.json")
+input_path = Path("../data/graph_output.json")
 loaded_data = json.loads(input_path.read_text(encoding="utf-8"))
 
 if isinstance(loaded_data, dict):
