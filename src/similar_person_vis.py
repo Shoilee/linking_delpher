@@ -233,7 +233,7 @@ node_styles = [
 ]
 
 edge_styles = [
-    EdgeStyle("SIMILAR", labeled=False, directed=False),
+    EdgeStyle("SIMILAR", caption=False, directed=False),
 ]
 
 layout = {"name": "cose", "animate": "end", "nodeDimensionsIncludeLabels": False}
