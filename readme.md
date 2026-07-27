@@ -3,6 +3,8 @@ This is KB RinR-2026 Project.
 For project update see the [wiki](https://github.com/Shoilee/linking_delpher/wiki)
 
 
+
+
 ### Data Processing
 - Create Event Metadata and load it to couchDB
   - `python src/process_events.py`
@@ -20,6 +22,12 @@ For project update see the [wiki](https://github.com/Shoilee/linking_delpher/wik
   - `src/show_data.py`
   - change global variable COUCH_DB for desired database
 
-Things to discuss: 
-- [x] why there is a gap in between DST / DST_XML
-- [x] how can we increase event vs article results
+
+### Network Visual 
+
+- [disamb/disambiguation_embedding_faiss_v1.ipynb] does the similar person name matching. (output --> similar_names.json). 
+- [src/create_network_graph.py] convert the given json file into st_link_analysis analysis style. (output --> graph_output.json)
+- [src/similar_person_vis.py] creates a network visual which shows network of similar person (inspection or annotation module).
+- [src/assign_person_uri.py] assign person uri based on graph_output.json. (output --> graph_output.json) 
+- TODO: network of persons with articles
+
