@@ -19,12 +19,12 @@ if "histEvent_startDate" not in st.session_state:
 if "histEvent_endDate" not in st.session_state:
     st.session_state["histEvent_endDate"] = None
 if "download_dir" not in st.session_state:
-    st.session_state["download_dir"] = "data"
+    st.session_state["download_dir"] = "../data"
 
 event_title = st.text_input("Enter your historical event title", st.session_state["histEvent_title"])
 # use a real date default and pass session_state key via keyword to avoid positional-after-keyword error
 default_date = datetime.date(1700, 1, 1)
-event_startDate = st.date_input("Enter the (possible) event start date", value="1600-01-01", min_value="1600-01-01", max_value="1950-01-01")
+event_startDate = st.date_input("Enter the (possible) event start date", value="1800-01-01", min_value="1600-01-01", max_value="1950-01-01")
 event_endDate = st.date_input("Enter the (possible) event end date", value="1900-01-01", min_value="1600-01-01", max_value="1950-01-01")
 
 download_dir = st.text_input("Relative path for download directory", st.session_state["download_dir"])
@@ -40,16 +40,16 @@ if submit:
     import subprocess
     try:
         # determine output directory (handle absolute or relative paths)
-        user_dir = st.session_state.get("download_dir", "./data")
+        user_dir = st.session_state.get("download_dir", "../data")
         out_dir = user_dir if os.path.isabs(user_dir) else os.path.join(os.getcwd(), user_dir)
         completed = subprocess.run(
             [
                 sys.executable,
-                "src/get_article_by_event.py",
+                "../src/get_article_by_event.py",
                 "--title",
-                "tweede expeditie naar nias",
+                st.session_state["histEvent_title"],
                 "--date_y",
-                str(1863),
+                str(st.session_state["histEvent_startDate"].year),
                 "--out_dir",
                 out_dir,
             ],
@@ -60,13 +60,17 @@ if submit:
         st.text("Script output:\n" + (completed.stdout or "(no output)"))
         if completed.stderr:
             st.text("Script errors:\n" + completed.stderr)
-        # if the script ran successfully, navigate to the next page
         if completed.returncode == 0:
-            try:
-                st.experimental_set_query_params(page="next")
-            except Exception:
-                pass
-        else:
+            st.session_state["download_success"] = True
+            st.success("✅ Download successfully completed!")
+            st.balloons()
             st.warning(f"Script exited with code {completed.returncode}")
+        else:
+            st.session_state["download_success"] = False
     except Exception as e:
+        st.session_state["download_success"] = False
         st.error(f"Failed to run script: {e}")
+
+if st.session_state.get("download_success", False):
+    if st.button("Show downloaded articles", key="show_articles"):
+        st.switch_page("pages/show_artcle.py")
