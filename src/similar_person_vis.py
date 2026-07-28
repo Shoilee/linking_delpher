@@ -34,9 +34,12 @@ def edge_label(edge):
     edge_id = data.get("id")
     source = data.get("source")
     target = data.get("target")
-    label = data.get("label", "UNKNOWN")
-    score = data.get("score")
-    return f"#{edge_id} | {source} -> {target} | {label} | score={score}"
+    properties = ", ".join(
+        f"{key}={value}"
+        for key, value in sorted(data.items())
+        if key not in {"id", "source", "target"}
+    )
+    return f"#{edge_id} | {source} -> {target} | {properties}"
 
 
 def sort_ids(ids):
