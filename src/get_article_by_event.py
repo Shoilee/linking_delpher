@@ -42,7 +42,7 @@ def get_article_by_event(event, out_dir):
     date_y = int(event.get("date_y", 0))
 
     base_url = base_EVENT_BASED_URL % (title, date_y, date_y + 10)
-    print(f"Fetching articles for event: {title} with base URL: {base_url}")
+    # print(f"Fetching articles for event: {title} with base URL: {base_url}")
 
     resp = requests.get(base_url)
     data = lxml.etree.fromstring(resp.content)
