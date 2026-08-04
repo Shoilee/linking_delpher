@@ -4,7 +4,7 @@
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-        <mxCell id="zhToJgcUnFuIb-c7XuXs-1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="Retrieve Article&amp;nbsp;" vertex="1">
+        <mxCell id="zhToJgcUnFuIb-c7XuXs-1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="Retrieve Article&amp;nbsp;&lt;div&gt;script: get_article_by_events)&lt;/div&gt;" vertex="1">
           <mxGeometry height="60" width="120" x="120" y="230" as="geometry" />
         </mxCell>
         <mxCell id="zhToJgcUnFuIb-c7XuXs-2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="Apply NER" vertex="1">
@@ -13,8 +13,17 @@
         <mxCell id="zhToJgcUnFuIb-c7XuXs-3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="Apply Person Disambiguation" vertex="1">
           <mxGeometry height="60" width="120" x="588" y="230" as="geometry" />
         </mxCell>
-        <mxCell id="zhToJgcUnFuIb-c7XuXs-4" parent="1" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;shapeInside=1;fixedSize=1;" value="format: json object{Required field: title, date_y, id&amp;nbsp;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;}&lt;/span&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;" vertex="1">
-          <mxGeometry height="100" width="120" x="30" y="40" as="geometry" />
+        <mxCell id="6_6EVu_LjZm-8ECFpv7u-2" edge="1" parent="1" source="zhToJgcUnFuIb-c7XuXs-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="zhToJgcUnFuIb-c7XuXs-1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="zhToJgcUnFuIb-c7XuXs-4" parent="1" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;shapeInside=1;fixedSize=1;" value="format: json object {Required field: title, date_y, id&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;}&lt;/span&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="100" width="120" x="20" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="6_6EVu_LjZm-8ECFpv7u-3" edge="1" parent="1" style="endArrow=none;html=1;rounded=0;" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="40" y="480" as="sourcePoint" />
+            <mxPoint x="760" y="480" as="targetPoint" />
+          </mxGeometry>
         </mxCell>
       </root>
     </mxGraphModel>
