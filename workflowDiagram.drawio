@@ -8,7 +8,7 @@
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="zhToJgcUnFuIb-c7XuXs-1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="Retrieve Article&amp;nbsp;&lt;br&gt;&lt;br&gt;&lt;div&gt;(script: get_article_by_events)&lt;/div&gt;" vertex="1">
-          <mxGeometry height="60" width="180" x="90" y="230" as="geometry" />
+          <mxGeometry height="60" width="180" x="60" y="230" as="geometry" />
         </mxCell>
         <mxCell id="6_6EVu_LjZm-8ECFpv7u-11" edge="1" parent="1" source="zhToJgcUnFuIb-c7XuXs-2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="6_6EVu_LjZm-8ECFpv7u-10">
           <mxGeometry relative="1" as="geometry" />
@@ -26,7 +26,7 @@
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="zhToJgcUnFuIb-c7XuXs-4" parent="1" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;shapeInside=1;fixedSize=1;" value="format: json object {Required field: title, date_y, id&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;}&lt;/span&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;" vertex="1">
-          <mxGeometry height="100" width="160" x="100" y="60" as="geometry" />
+          <mxGeometry height="100" width="160" x="70" y="60" as="geometry" />
         </mxCell>
         <mxCell id="6_6EVu_LjZm-8ECFpv7u-3" edge="1" parent="1" style="endArrow=none;html=1;rounded=0;" value="">
           <mxGeometry height="50" relative="1" width="50" as="geometry">
@@ -42,8 +42,13 @@
             </Array>
           </mxGeometry>
         </mxCell>
+        <mxCell id="6_6EVu_LjZm-8ECFpv7u-16" edge="1" parent="1" source="6_6EVu_LjZm-8ECFpv7u-5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="30.000000000000227" y="419.9999999999999" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
         <mxCell id="6_6EVu_LjZm-8ECFpv7u-5" parent="1" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;shapeInside=1;fixedSize=1;" value="output: json dump of article metadata together with OCR text (NER will be applied on it)&lt;div&gt;&lt;br/&gt;&lt;/div&gt;" vertex="1">
-          <mxGeometry height="80" width="140" x="110" y="380" as="geometry" />
+          <mxGeometry height="80" width="200" x="50" y="380" as="geometry" />
         </mxCell>
         <mxCell id="6_6EVu_LjZm-8ECFpv7u-7" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="TODO:" vertex="1">
           <mxGeometry height="60" width="120" x="-100" y="500" as="geometry" />
@@ -60,13 +65,19 @@
         <mxCell id="6_6EVu_LjZm-8ECFpv7u-12" parent="1" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;shapeInside=1;fixedSize=1;" value="format: json object&amp;nbsp;&lt;br&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;required fields: {name, article, candidates {name, article, any other disambiguation score} }&lt;/span&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;" vertex="1">
           <mxGeometry height="80" width="302" x="631" y="380" as="geometry" />
         </mxCell>
-        <mxCell id="6_6EVu_LjZm-8ECFpv7u-14" edge="1" parent="1" source="6_6EVu_LjZm-8ECFpv7u-10" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.364;entryDx=0;entryDy=0;entryPerimeter=0;" target="zhToJgcUnFuIb-c7XuXs-3">
+        <mxCell id="6_6EVu_LjZm-8ECFpv7u-14" edge="1" parent="1" source="6_6EVu_LjZm-8ECFpv7u-10" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.084;entryY=0.444;entryDx=0;entryDy=0;entryPerimeter=0;" target="6_6EVu_LjZm-8ECFpv7u-18">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="623.04" y="420.04" />
-              <mxPoint x="623.04" y="251.81" />
+              <mxPoint x="623.04" y="419.96" />
+              <mxPoint x="623.04" y="104.39" />
             </Array>
           </mxGeometry>
+        </mxCell>
+        <mxCell id="6_6EVu_LjZm-8ECFpv7u-18" parent="1" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;shapeInside=1;fixedSize=1;" value="format: csv or dataframe&amp;nbsp;&lt;div&gt;&lt;br&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="100" width="160" x="702" y="60" as="geometry" />
+        </mxCell>
+        <mxCell id="6_6EVu_LjZm-8ECFpv7u-19" edge="1" parent="1" source="6_6EVu_LjZm-8ECFpv7u-18" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="zhToJgcUnFuIb-c7XuXs-3">
+          <mxGeometry relative="1" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
