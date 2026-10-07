@@ -151,7 +151,7 @@ edge_keys = sorted(
 )
 
 st.sidebar.title("Graph editor")
-st.sidebar.caption("Delete graph elements here and save the updated JSON when you are done.")
+st.sidebar.caption("Adjust the graph with the filters, then save the filtered graph as JSON.")
 
 selected_node_ids = st.sidebar.multiselect(
     "Nodes to delete",
@@ -181,19 +181,8 @@ if st.sidebar.button("Delete selected edges"):
     else:
         st.sidebar.warning("Select at least one edge to delete.")
 
-st.sidebar.write("Choose where the edited graph should be stored.")
-output_path = st.sidebar.text_input("Output JSON path", value=str(GRAPH_PATH))
-
-if st.sidebar.button("Save updated graph"):
-    try:
-        save_path = Path(output_path)
-        with save_path.open("w", encoding="utf-8") as f:
-            json.dump(elements, f, indent=2, ensure_ascii=False)
-        st.sidebar.success(f"Saved updated graph to: {save_path}")
-    except Exception as exc:
-        st.sidebar.error(f"Unable to save JSON: {exc}")
-
 st.sidebar.subheader("Filter edges")
+st.sidebar.caption("Select values or ranges to keep in the graph.")
 edge_filters = {}
 for key in edge_keys:
     values = [
@@ -228,6 +217,28 @@ filtered_elements = filter_edges_by_metadata(elements, edge_filters)
 st.sidebar.caption(
     f"Showing {len(filtered_elements['edges'])} of {len(elements.get('edges', []))} edges."
 )
+
+st.sidebar.write("Choose where the adjusted graph should be stored.")
+# default_output_path = GRAPH_PATH.with_name(
+#     f"{GRAPH_PATH.stem}_adjusted{GRAPH_PATH.suffix}"
+# )
+default_output_path = GRAPH_PATH
+output_path = st.sidebar.text_input(
+    "Output JSON path",
+    value=str(default_output_path),
+)
+
+if st.sidebar.button("Save filtered graph"):
+    try:
+        save_path = Path(output_path)
+        with save_path.open("w", encoding="utf-8") as f:
+            json.dump(filtered_elements, f, indent=2, ensure_ascii=False)
+        st.sidebar.success(
+            f"Saved graph with {len(filtered_elements['edges'])} filtered edge(s) "
+            f"to: {save_path}"
+        )
+    except OSError as exc:
+        st.sidebar.error(f"Unable to save JSON: {exc}")
 
 st.title("Person Disambiguation Visualization")
 
