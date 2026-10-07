@@ -29,5 +29,6 @@ For project update see the [wiki](https://github.com/Shoilee/linking_delpher/wik
 - [src/create_network_graph.py] convert the given json file into st_link_analysis analysis style. (output --> graph_output.json)
 - [src/similar_person_vis.py] creates a network visual which shows network of similar person (inspection or annotation module).
 - [src/assign_person_uri.py] assign person uri based on graph_output.json. (output --> graph_output.json) 
-- TODO: network of persons with articles
+- 
+- [src/similar_person_vis.py] creates a network visual of persons with articles (imput data --> graph_output.json)
 
